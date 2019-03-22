@@ -7,5 +7,5 @@ install_gce_virtualapp/tmp/authorized_keys
 install_gce_virtualapp/tmp/hosts
 install_gce_virtualapp/tmp/openshift.config
 install_gce_virtualapp/tmp/ansible.log
-install_gce_virtualapp/tmp/users.cvs
+install_gce_virtualapp/tmp/users.csv
 *.retry
