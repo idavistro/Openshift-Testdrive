@@ -6,7 +6,6 @@
   vars_files:
      - settings/authentications
      - settings/defaults
-     - notification/mail_authentication
   tasks:
 ### VARIABLES SETUP
      - set_fact: region={{ gce_default_region }}
