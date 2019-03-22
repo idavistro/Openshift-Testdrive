@@ -1,0 +1,52 @@
+### CREATE MASTERS TASKS
+- name: Creating instance {{ ':' }} {{ nodes_prefix }}{{ counter }}
+  gce:
+    instance_names: "{{ nodes_prefix }}{{ counter }}"
+    state: "present"
+    machine_type: "{{ machine_type }}"
+    image: "{{ image }}"
+    zone: "{{ zone }}"
+    network: "{{ network_name }}"
+    subnetwork: "{{ subnetwork_name }}"
+    tags: ["ssh","vnc"]
+    disk_auto_delete: True
+    project_id: "{{ gce_project_id }}"
+    credentials_file: "{{ gce_credentials_file }}"
+    service_account_email: "{{ gce_service_account_email }}"
+  ignore_errors: True
+  register: instance_creation
+  tags:
+    - client_masters
+
+- debug: var=instance_creation
+
+- name: Getting OpenShift's Client Public IP{{ ':' }} {{ instance_creation.instance_data[0].public_ip }}
+  set_fact: openshift_cliente_public_ip={{ instance_creation.instance_data[0].public_ip }}
+
+- name: Getting OpenShift's Client Private IP{{ ':' }} {{ instance_creation.instance_data[0].private_ip }}
+  set_fact: openshift_cliente_private_ip={{ instance_creation.instance_data[0].private_ip }}
+  tags:
+    - create_masters
+
+- name: Wait for OpenShift's Client instance to be up{{ ':' }} {{ openshift_cliente_public_ip }}
+  wait_for: host="{{ openshift_cliente_public_ip }}" port={{ ssh_default_image_port }} delay={{ instance_validate_delay }}  state=started
+  tags:
+    - create_masters
+
+- name: Adding OpenShift's Client into group{{ ':' }} bastion_group
+  add_host: groups=bastion_group hostname={{ openshift_cliente_public_ip }}
+            private_ip={{ openshift_cliente_private_ip }} 
+            public_ip={{ openshift_cliente_public_ip }}
+            instance_name={{ nodes_prefix }}{{ counter }}
+            ansible_user={{ ssh_default_image_user }} 
+            ansible_password={{ ssh_default_image_password }}
+            ansible_port={{ ssh_default_image_port }}
+
+- name: Write machine data to users file
+  lineinfile:
+    path: "tmp/users.csv"
+    insertafter: EOF
+    line: "IP Remota de Conexion:{{ instance_creation.instance_data[0].public_ip }}:5901 password:r3dh4t1!"
+    create: yes
+  tags:
+    - create_masters

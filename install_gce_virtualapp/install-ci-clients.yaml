@@ -1,0 +1,120 @@
+---
+- name: Create VNC host for OpenShift Openshift@Ops{{ ':' }} 
+  hosts: localhost
+  connection: connection
+  gather_facts: False
+  vars_files:
+     - settings/authentications
+     - settings/defaults
+     - notification/mail_authentication
+  tasks:
+### VARIABLES SETUP
+     - set_fact: region={{ gce_default_region }}
+       when: region is not defined
+       tags:
+          - always
+
+     - set_fact: zone={{ gce_default_zone }}
+       when: zone is not defined
+       tags:
+          - always
+
+     - set_fact: network_name={{ gce_default_network_name }}
+       when: network_name is not defined
+       tags:
+          - always
+
+     - set_fact: subnetwork_name={{ gce_default_subnetwork_name }}
+       when: subnetwork_name is not defined
+       tags:
+          - always
+
+     - set_fact: subnetwork_range={{ gce_default_subnetwork_range }}
+       when: subnetwork_range is not defined
+       tags:
+          - always
+
+     - set_fact: image={{ gce_default_image }}
+       when: image is not defined
+       tags:
+          - always
+
+     - set_fact: machine_type={{ gce_default_machine_type }}
+       when: machine_type is not defined
+       tags:
+          - always
+
+     - name: Defining OpenShift's Master{{ ':' }} {{ prefix }}
+       set_fact: nodes_prefix="{{ prefix }}"
+       tags:
+          - always
+
+     - name: Clear users file
+       file:
+         state: absent
+         path: "tmp/users.csv"
+       tags:
+          - clean_users
+
+     - name: Creating nodes
+       include: ./create-client-nodes.yaml counter={{ item }}
+       with_sequence: start=1 end={{ total_nodes }}
+       tags:
+          - create_servers
+
+### CREATE INVENTORY FILE
+     - name: Deleting old hosts file
+       file:
+          path: "./tmp/hosts"
+          state: absent
+       ignore_errors: True
+       tags: 
+          - generating_inventory
+
+     - name: Copying Openshift file template
+       template:
+          src: "./templates/inventory_hosts.j2"
+          dest: "./tmp/hosts"
+       tags:
+          - generating_inventory
+
+## Uploading lab files
+- name: Uploading lab files
+  hosts: bastion_group
+  vars_files:
+     - settings/authentications
+     - settings/defaults
+  gather_facts: False
+  tasks:
+     - name: Copying Openshift file template
+       copy:
+         src: "./templates/setup_openshift_ips.yaml"
+         dest: "/root/setup_openshift_ips.yaml"
+       tags:
+         - lab_files
+
+     - name: Copying Openshift repo template
+       template:
+         src: "./templates/openshift.repo.j2"
+         dest: "/etc/yum.repos.d/openshift.repo"
+         owner: root
+         group: root
+         mode: "u=rw,g=r,o=r"
+       tags:
+         - lab_files
+
+     - name: Deleting external repo config
+       file:
+         path: "/etc/yum.repos.d/redhat.repo"
+         state: absent
+       ignore_errors: True
+       tags: 
+         - lab_files
+
+     - name: Deleting external repo backup
+       file:
+         path: "/etc/yum.repos.d/ose.repo.backup"
+         state: absent
+       ignore_errors: True
+       tags: 
+         - lab_files

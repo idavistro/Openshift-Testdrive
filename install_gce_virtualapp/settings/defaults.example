@@ -1,0 +1,21 @@
+gce_default_machine_type: n1-highmem-2
+# Standard machine type with 4 vCPUs and 15 GB of system memory.
+# ns2-standard-2 : Standard machine type with 2 vCPUs and 7.5 GB of memory
+# n1-highmem-2 : High memory machine type with 2 vCPUs and 13 GB of memory.
+gce_default_region: us-east1
+gce_default_zone:   us-east1-c
+gce_default_network_name:
+gce_default_subnetwork_name: 
+gce_default_subnetwork_range: 192.168.0.0/16
+#gce_default_image: rhel74-40g
+gce_default_image: testdrive-cicd-39
+gce_default_docker_size: 60
+ssh_default_image_user: root
+ssh_default_image_password: 
+ssh_default_image_port: 22
+openshift_repository_ip: 192.168.0.2
+openshift_version: 3.9
+prefix: bastion-
+total_nodes: 2
+instance_validate_delay: 5
+ssh_key_file: 
