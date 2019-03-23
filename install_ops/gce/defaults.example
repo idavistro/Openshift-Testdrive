@@ -12,3 +12,4 @@ ssh_default_image_password:
 ssh_default_image_port: 22
 openshift_repository_ip: 192.168.0.2
 ssh_key_file: 
+attendees: 2
