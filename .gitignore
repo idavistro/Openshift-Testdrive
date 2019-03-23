@@ -8,4 +8,12 @@ install_gce_virtualapp/tmp/hosts
 install_gce_virtualapp/tmp/openshift.config
 install_gce_virtualapp/tmp/ansible.log
 install_gce_virtualapp/tmp/users.csv
+install_ops/settings/defaults
+install_ops/settings/mail_authentication
+install_ops/settings/slack_authentication
+install_ops/tmp/authorized_keys
+install_ops/tmp/hosts
+install_ops/tmp/openshift.config
+install_ops/tmp/ansible.log
+install_ops/tmp/users.csv
 *.retry
