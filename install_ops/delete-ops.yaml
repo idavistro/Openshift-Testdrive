@@ -1,0 +1,101 @@
+---
+- name: Delete all 3 Hosts for OpenShift TestDrive@Ops{{ ':' }} Master, Infra and Node
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - gce/authentication
+     - gce/defaults
+     - notification/slack_authentication
+  vars:
+     attendees: "{{ lookup('file', 'ops-attendees.txt').split('\n') }}"
+  tasks:
+     - include: commons/setting_defaults.yaml
+
+     - name: email is not defined
+       fail: msg="email is not defined"
+       when: email is not defined
+
+### USERNAME LOOKUP USERNAME LOOKUP USERNAME LOOKUP USERNAME LOOKUP USERNAME
+#### USERNAME LOOKUP USERNAME LOOKUP USERNAME LOOKUP USERNAME LOOKUP USERNAME
+     - name: Lookup for this email{{ ':' }} {{ email }}
+       set_fact: line_selected={{ item }}
+       with_items: "{{ attendees }}"
+       when: email in item
+
+     - fail: msg="{{ email }} wasn't found into file ops-attendees.txt"
+       when: line_selected is not defined
+
+     - set_fact: user_id={{ line_selected.split(',')[0] }}
+     - set_fact: name={{ line_selected.split(',')[1] }}
+
+     - set_fact: openshift_master="{{ user_id }}-master"
+     - set_fact: openshift_infra="{{ user_id }}-infra"
+     - set_fact: openshift_node="{{ user_id }}-node"
+
+     - name: Deleting instance exists{{ ':' }} {{ openshift_master }}
+       gce:
+         instance_names: "{{ openshift_master }}"
+         zone: "{{ zone }}"
+         state: "absent"
+         project_id: "{{ gce_project_id }}"
+         credentials_file: "{{ gce_credentials_file }}"
+         service_account_email: "{{ gce_service_account_email }}"
+       ignore_errors: True
+       register: master_instance_status  
+
+     - name: Deleting Docker Storage for{{ ':' }}{{ openshift_master }}
+       gce_pd:
+         name: "{{ openshift_master }}-docker"
+         zone: "{{ zone }}"
+         state: absent
+         project_id: "{{ gce_project_id }}"
+         credentials_file: "{{ gce_credentials_file }}"
+         service_account_email: "{{ gce_service_account_email }}"
+       ignore_errors: True
+ 
+     - name: Deleting instance exists{{ ':' }} {{ openshift_infra }}
+       gce:
+         instance_names: "{{ openshift_infra }}"
+         zone: "{{ zone }}"
+         state: "absent"
+         project_id: "{{ gce_project_id }}"
+         credentials_file: "{{ gce_credentials_file }}"
+         service_account_email: "{{ gce_service_account_email }}"
+       ignore_errors: True
+       register: infra_instance_status
+
+     - name: Deleting Docker Storage for{{ ':' }}{{ openshift_infra }}
+       gce_pd:
+         name: "{{ openshift_infra }}-docker"
+         zone: "{{ zone }}"
+         state: absent
+         project_id: "{{ gce_project_id }}"
+         credentials_file: "{{ gce_credentials_file }}"
+         service_account_email: "{{ gce_service_account_email }}"
+       ignore_errors: True
+
+     - name: Deleting instance exists{{ ':' }} {{ openshift_node }}
+       gce:
+         instance_names: "{{ openshift_node }}"
+         zone: "{{ zone }}"
+         state: "absent"
+         project_id: "{{ gce_project_id }}"
+         credentials_file: "{{ gce_credentials_file }}"
+         service_account_email: "{{ gce_service_account_email }}"
+       ignore_errors: True
+       register: node_instance_status 
+
+     - name: Deleting Docker Storage for{{ ':' }}{{ openshift_node }}
+       gce_pd:
+         name: "{{ openshift_node }}-docker"
+         zone: "{{ zone }}"
+         state: absent
+         project_id: "{{ gce_project_id }}"
+         credentials_file: "{{ gce_credentials_file }}"
+         service_account_email: "{{ gce_service_account_email }}"
+       ignore_errors: True 
+
+     - name: Notifying by Slack about sucessfully deletion
+       slack: token={{ default_slack_token }} msg="TestDrive@Ops{{ ':'}} Environment for {{ name }} ({{ user_id }}) was successfully deleted"
+       when: default_slack_token is defined and default_slack_token is not none

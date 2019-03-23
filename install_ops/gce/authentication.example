@@ -1,0 +1,6 @@
+gce_service_account_email: 
+gce_credentials_file: 
+gce_project_id: testdrive-openshift
+redhat_subscription_username: 
+redhat_subscription_password: 
+redhat_subscription_pool_id: 

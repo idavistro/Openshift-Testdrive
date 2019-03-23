@@ -1,0 +1,1 @@
+ansible-playbook create-ops.yaml -e email=jgamboag@redhat.com

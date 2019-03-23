@@ -1,0 +1,9 @@
+igalvan,Isaac Galvan,igalvanl@redhat.com
+iescoto,Ismenen Dulce Escoto Velázquez,iescoto@funcionpublica.gob.mx
+onovelo,Oscar Gerardo Novelo Moo,onovelo@fncionpublica.gob.mx
+gersain,Gersain Hernández Vargas,soporte-dgti4@funcionpublica.gob.mx
+ohernandez,Octavio Hernández Araiza,ohernandez@funcionpublica.gob.mx
+fromano,Felipe Romano Schneider,fromanos@hotmail.com
+llucio,luis alberto lucio pedraza,luisalberto.lucio@gmail.com
+lcaraveo,Laura Caraveo Cabreralcaraveo@funcionpublica.gob.mx
+user13,user13,jgamboag@redhat.com
