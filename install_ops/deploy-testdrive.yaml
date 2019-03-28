@@ -12,6 +12,13 @@
        tags:
           - always
           
+     - name: Clear users file
+       file:
+          state: absent
+          path: "tmp/users.csv"
+       tags:
+          - create_servers
+
      - name: Creating nodes
        include: ./create-ops.yaml uid=user{{ item }}
        with_sequence: start=1 end={{ attendees }}

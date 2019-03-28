@@ -156,3 +156,12 @@
   add_host: groups=openshift_node_group hostname={{ openshift_node_public_ip }}
             ansible_user={{ ssh_default_image_user }} ansible_password={{ ssh_default_image_password }}
             ansible_port={{ ssh_default_image_port }}
+
+- name: Write machine data to users file
+  lineinfile:
+    path: "tmp/users.csv"
+    insertafter: EOF
+    line: "Master:{{ openshift_master_public_ip }}, Infra:{{ openshift_infra_public_ip }}, Node:{{ openshift_node_public_ip }}"
+    create: yes
+  tags:
+    - create_masters
