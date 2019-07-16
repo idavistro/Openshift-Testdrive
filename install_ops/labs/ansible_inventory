@@ -1,17 +1,23 @@
 [OSEv3:children]
 masters
 nodes
+etcd
  
 [masters]
 <YOUR PREFIX>-master openshift_public_hostname=master.testdrive.com
  
 [nodes]
-<YOUR PREFIX>-master openshift_public_hostname=master.testdrive.com
-<YOUR PREFIX>-infra  openshift_node_labels="{'host': 'infra'}"
-<YOUR PREFIX>-node   openshift_node_labels="{'host': 'apps'}"
+<YOUR PREFIX>-master openshift_node_group_name='node-config-master'
+<YOUR PREFIX>-infra  openshift_node_group_name='node-config-infra'
+<YOUR PREFIX>-node   openshift_node_group_name='node-config-compute'
+
+[etcd]
+<YOUR PREFIX>-master
 
 [OSEv3:vars]
-deployment_type=openshift-enterprise
+openshift_deployment_type=openshift-enterprise
+# Disable some checks before installing
+openshift_disable_check=disk_availability,docker_storage,memory_availability
  
 # SSH user, this user should allow ssh based auth without requiring a password
 ansible_ssh_user=root
@@ -19,10 +25,17 @@ ansible_ssh_user=root
 #### default subdomain to use for exposed routes
 openshift_master_default_subdomain=cloudapps.testdrive.com
 
-openshift_hosted_router_selector='host=infra'
-openshift_router_selector='host=infra'
-openshift_hosted_registry_selector='host=infra'
-openshift_registry_selector='host=infra'
-openshift_hosted_registry_replicas=1
-openshift_hosted_metrics_deploy=true
+# openshift_hosted_metrics_deploy=true
 openshift_master_metrics_public_url=https://hawkular-metrics.cloudapps.testdrive.com/hawkular/metrics
+
+openshift_metrics_install_metrics=True
+openshift_metrics_hawkular_nodeselector={"node-role.kubernetes.io/infra": "true"}
+openshift_metrics_cassandra_nodeselector={"node-role.kubernetes.io/infra": "true"}
+openshift_metrics_heapster_nodeselector={"node-role.kubernetes.io/infra": "true"}
+
+openshift_hosted_router_replicas=1
+openshift_hosted_registry_replicas=1
+openshift_router_selector='node-role.kubernetes.io/infra=true'
+openshift_registry_selector='node-role.kubernetes.io/infra=true'
+openshift_hosted_registry_selector="node-role.kubernetes.io/infra=true"
+
