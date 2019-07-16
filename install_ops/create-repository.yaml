@@ -148,12 +148,12 @@
       tags:
          - prepare
     - name: RED HAT SUBSCRIPTION{{ ':' }} Registering to Red Hat's Subscription Manager
-      command: subscription-manager register --username=jgamboag@redhat.com  --password=jdvd12345678P --force
+      command: subscription-manager register --username=xx  --password=xx --force
       tags:
          - prepare
 
     - name: RED HAT SUBSCRIPTION{{ ':' }} Attaching a Pool ID
-      command: subscription-manager attach --pool=8a85f98260c27fc50160c32cc4365ccb
+      command: subscription-manager attach --pool=xx
       tags:
          - prepare
 
